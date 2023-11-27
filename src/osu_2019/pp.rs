@@ -282,13 +282,17 @@ impl<'m> OsuPP<'m> {
         };
 
         let mut pp = (aim_value.powf(1.185 * nodt_bonus)
-            + speed_value.powf(0.83 * acc_depression)
+            + speed_value.powf(0.83 * acc_depression * 0.1)
             + acc_value.powf(1.14 * nodt_bonus))
         .powf(1.0 / 1.1)
             * multiplier;
 
         if self.mods.dt() && self.mods.hr() {
             pp *= 1.025;
+        }
+
+        if speed_value > aim_value {
+            pp *= aim_value / speed_value;
         }
 
         OsuPerformanceAttributes {
@@ -368,7 +372,7 @@ impl<'m> OsuPP<'m> {
         // Scale with accuracy
         aim_value *= 0.3 + self.acc.unwrap() / 2.0;
         aim_value *= 0.98 + attributes.od as f32 * attributes.od as f32 / 2500.0;
-
+        
         aim_value
     }
 
