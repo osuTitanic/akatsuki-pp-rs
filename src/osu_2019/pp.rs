@@ -281,7 +281,7 @@ impl<'m> OsuPP<'m> {
             false => 1.0,
         };
 
-        let mut pp = (aim_value.powf(1.185 * nodt_bonus)
+        let mut pp = (aim_value.powf(1.15 * nodt_bonus)
             + speed_value.powf(0.83 * acc_depression * 0.1)
             + acc_value.powf(1.14 * nodt_bonus))
         .powf(1.0 / 1.1)
