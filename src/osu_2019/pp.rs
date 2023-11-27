@@ -277,7 +277,7 @@ impl<'m> OsuPP<'m> {
         }
 
         let nodt_bonus = match !self.mods.change_speed() {
-            true => 1.02,
+            true => 0.98,
             false => 1.0,
         };
 
