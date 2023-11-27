@@ -403,6 +403,11 @@ impl CatchPPInner {
             pp *= 0.9;
         }
 
+        // RX penalty
+        if self.mods.rx() {
+            pp *= 0.25;
+        }
+
         CatchPerformanceAttributes {
             difficulty: self.attributes,
             pp,
