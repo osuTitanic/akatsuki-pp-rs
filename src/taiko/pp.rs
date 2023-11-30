@@ -300,7 +300,14 @@ impl TaikoPpInner {
         let diff_value = self.compute_difficulty_value(effective_miss_count);
         let acc_value = self.compute_accuracy_value();
 
-        let pp = (diff_value.powf(1.1) + acc_value.powf(1.1)).powf(1.0 / 1.1) * multiplier;
+        let mut pp = (diff_value.powf(1.1) + acc_value.powf(1.1)).powf(1.0 / 1.1) * multiplier;
+        
+        if self.mods.rx() {
+            let color_nerf = self.attrs.colour / (self.attrs.rhythm * 2.0);
+            if color_nerf > 1.0 {
+                pp /= color_nerf;
+            }
+        }
 
         TaikoPerformanceAttributes {
             difficulty: self.attrs,
