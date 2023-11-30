@@ -278,10 +278,10 @@ impl<'m> OsuPP<'m> {
 
         let nodt_bonus = match !self.mods.change_speed() {
             true => 0.975,
-            false => 0.995,
+            false => 0.99,
         };
 
-        let mut pp = (aim_value.powf(1.145 * nodt_bonus)
+        let mut pp = (aim_value.powf(1.125 * nodt_bonus)
             + speed_value.powf(0.83 * acc_depression * 0.1)
             + acc_value.powf(1.14 * nodt_bonus))
         .powf(1.0 / 1.1)
