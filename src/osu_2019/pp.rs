@@ -278,7 +278,7 @@ impl<'m> OsuPP<'m> {
 
         let nodt_bonus = match !self.mods.change_speed() {
             true => 0.975,
-            false => 0.99,
+            false => 0.97,
         };
 
         let mut pp = (aim_value.powf(1.125 * nodt_bonus)
@@ -292,7 +292,7 @@ impl<'m> OsuPP<'m> {
         }
 
         if speed_value > aim_value {
-            pp *= (aim_value / speed_value) * 1.05;
+            pp *= (aim_value / speed_value) * 1.1;
         }
 
         OsuPerformanceAttributes {
