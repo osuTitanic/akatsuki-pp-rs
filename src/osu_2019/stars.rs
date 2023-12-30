@@ -28,6 +28,7 @@ pub fn stars(map: &Beatmap, mods: u32, passed_objects: Option<usize>) -> OsuDiff
     let mut diff_attributes = OsuDifficultyAttributes {
         ar: map_attributes.ar,
         od: map_attributes.od,
+        cs: map_attributes.cs,
         ..Default::default()
     };
 
@@ -148,6 +149,7 @@ pub struct OsuDifficultyAttributes {
     pub ar: f64,
     pub od: f64,
     pub hp: f64,
+    pub cs: f64,
     pub n_circles: usize,
     pub n_sliders: usize,
     pub n_spinners: usize,
