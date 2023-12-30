@@ -277,12 +277,12 @@ impl<'m> OsuPP<'m> {
         }
 
         let nodt_bonus = match !self.mods.change_speed() {
-            true => 0.975,
-            false => 0.97,
+            true => 1.02,
+            false => 1.0,
         };
 
-        let mut pp = (aim_value.powf(1.125 * nodt_bonus)
-            + speed_value.powf(0.83 * acc_depression * 0.1)
+        let mut pp = (aim_value.powf(1.185 * nodt_bonus)
+            + speed_value.powf(0.83 * acc_depression)
             + acc_value.powf(1.14 * nodt_bonus))
         .powf(1.0 / 1.1)
             * multiplier;
@@ -291,9 +291,45 @@ impl<'m> OsuPP<'m> {
             pp *= 1.025;
         }
 
-        if speed_value > aim_value {
-            pp *= (aim_value / speed_value) * 1.1;
+        if self.map.creator == "gwb" || self.map.creator == "Plasma" {
+            pp *= 0.9;
         }
+
+        pp *= match self.map.beatmap_id {
+            // Louder than steel [ok this is epic]
+            1808605 => 0.85,
+
+            // over the top [Above the stars]
+            1821147 => 0.70,
+
+            // Just press F [Parkour's ok this is epic]
+            1844776 => 0.64,
+
+            // Hardware Store [skyapple mode]
+            1777768 => 0.90,
+
+            // Akatsuki compilation [ok this is akatsuki]
+            1962833 => {
+                pp *= 0.885;
+
+                if self.mods.dt() {
+                    0.83
+                } else {
+                    1.0
+                }
+            }
+
+            // Songs Compilation [Marathon]
+            2403677 => 0.85,
+
+            // Songs Compilation [Remembrance]
+            2174272 => 0.85,
+
+            // Apocalypse 1992 [Universal Annihilation]
+            2382377 => 0.85,
+
+            _ => 1.0,
+        };
 
         OsuPerformanceAttributes {
             difficulty: self.attributes.unwrap(),
@@ -342,7 +378,7 @@ impl<'m> OsuPP<'m> {
         }
 
         aim_value *= 1.0 + ar_factor as f32 * len_bonus;
-        
+
         // HD bonus
         if self.mods.hd() {
             aim_value *= 1.0 + 0.05 * (11.0 - attributes.ar) as f32;
@@ -372,7 +408,7 @@ impl<'m> OsuPP<'m> {
         // Scale with accuracy
         aim_value *= 0.3 + self.acc.unwrap() / 2.0;
         aim_value *= 0.98 + attributes.od as f32 * attributes.od as f32 / 2500.0;
-        
+
         aim_value
     }
 
@@ -383,7 +419,7 @@ impl<'m> OsuPP<'m> {
             (5.0 * (attributes.speed_strain as f32 / 0.0675).max(1.0) - 4.0).powi(3) / 100_000.0;
 
         // Longer maps are worth more
-        let len_bonus = 1.0
+        let len_bonus = 0.88
             + 0.4 * (total_hits / 2000.0).min(1.0)
             + (total_hits > 2000.0) as u8 as f32 * 0.5 * (total_hits / 2000.0).log10();
         speed_value *= len_bonus;
