@@ -672,10 +672,10 @@ impl OsuPpInner {
         if self.attrs.max_combo == 0 {
             1.0
         } else {
-            // 1 miss every 350 objects
-            let tolerable_misses = ((self.attrs.n_circles + self.attrs.n_sliders + self.attrs.n_spinners) as f64) / 385.0;
+            // 1 miss every 420 objects
+            let tolerable_misses = ((self.attrs.n_circles + self.attrs.n_sliders + self.attrs.n_spinners) as f64) / 420.0;
             let mut actual_combo = self.state.max_combo as f64;
-            let combo_boost = 1.54;
+            let combo_boost = 1.55;
             //let miss_factor = 1.0 - (1.0 * (self.state.n_misses as f64) / tolerable_misses);
             let miss_factor = 1.0;
             // Boost combo by 1.5x if misses are under tolerable misses threshold
