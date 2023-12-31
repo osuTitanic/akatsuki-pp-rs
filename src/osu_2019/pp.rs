@@ -292,7 +292,12 @@ impl<'m> OsuPP<'m> {
         if attributes.ar >= 10.3 {
             let ar_boost = attributes.ar/11.0;
             base_aim_nerf += (0.18 * ar_boost) as f32;
-            base_speed_nerf += (0.45 * ar_boost) as f32;
+            let speed_nerf_factor = if speed_value>aim_value {
+                0.225
+            } else {
+                0.45
+            };
+            base_speed_nerf += (speed_nerf_factor * ar_boost) as f32;
             // Precision buff
             if attributes.cs > 5.6 {
                 base_aim_nerf *= ((attributes.cs.max(7.0)/4.85) * ar_boost) as f32;
