@@ -278,8 +278,8 @@ impl<'m> OsuPP<'m> {
 
         let attributes = self.attributes.as_ref().unwrap();
 
-        let mut base_aim_nerf = 0.35;
-        let mut base_speed_nerf = 0.3;
+        let mut base_aim_nerf = 0.28;
+        let mut base_speed_nerf = 0.2;
 
         // Flow aim nerf
         let speed_aim_factor = speed_value/aim_value;
@@ -291,8 +291,8 @@ impl<'m> OsuPP<'m> {
 
         if attributes.ar >= 10.3 {
             let ar_boost = attributes.ar/11.0;
-            base_aim_nerf += (0.13 * ar_boost) as f32;
-            base_speed_nerf += (0.35 * ar_boost) as f32;
+            base_aim_nerf += (0.18 * ar_boost) as f32;
+            base_speed_nerf += (0.45 * ar_boost) as f32;
             // Precision buff
             if attributes.cs > 5.6 {
                 base_aim_nerf *= ((attributes.cs.max(7.0)/4.85) * ar_boost) as f32;
