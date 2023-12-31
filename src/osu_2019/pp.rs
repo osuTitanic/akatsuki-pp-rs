@@ -258,7 +258,7 @@ impl<'m> OsuPP<'m> {
         }
 
         let mut aim_value = self.compute_aim_value(total_hits, effective_miss_count);
-        let speed_value = self.compute_speed_value(total_hits, effective_miss_count);
+        let mut speed_value = self.compute_speed_value(total_hits, effective_miss_count);
         let acc_value = self.compute_accuracy_value(total_hits);
 
         let mut acc_depression = 1.0;
@@ -276,8 +276,35 @@ impl<'m> OsuPP<'m> {
             }
         }
 
+        let attributes = self.attributes.as_ref().unwrap();
+
+        let mut base_aim_nerf = 0.35;
+        let mut base_speed_nerf = 0.3;
+
+        // Flow aim nerf
+        let speed_aim_factor = speed_value/aim_value;
+
+        if speed_aim_factor > 1.1 {
+            base_aim_nerf /= speed_aim_factor * 1.2;
+            base_speed_nerf /= speed_aim_factor * 1.2;
+        }
+
+        if attributes.ar >= 10.3 {
+            let ar_boost = attributes.ar/11.0;
+            base_aim_nerf += (0.13 * ar_boost) as f32;
+            base_speed_nerf += (0.35 * ar_boost) as f32;
+            // Precision buff
+            if attributes.cs > 5.6 {
+                base_aim_nerf *= ((attributes.cs.max(7.0)/4.85) * ar_boost) as f32;
+                base_speed_nerf *= ((attributes.cs.max(7.0)/5.2) * ar_boost) as f32;
+            }
+        }
+
+        aim_value *= base_aim_nerf;
+        speed_value *= base_speed_nerf;
+
         let nodt_bonus = match !self.mods.change_speed() {
-            true => 1.02,
+            true => 1.0,
             false => 1.0,
         };
 
