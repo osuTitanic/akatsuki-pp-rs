@@ -355,6 +355,18 @@ impl<'m> OsuPP<'m> {
             // Apocalypse 1992 [Universal Annihilation]
             2382377 => 0.85,
 
+            // Ascension to heaven
+            111680 => 0.82,
+
+            // senketsu no chikai
+            142954 => {
+                if self.mods.dt() && self.mods.hr() {
+                    0.9
+                } else {
+                    0.95
+                }
+            },
+            
             _ => 1.0,
         };
 
