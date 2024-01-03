@@ -259,7 +259,7 @@ impl<'m> OsuPP<'m> {
 
         let mut aim_value = self.compute_aim_value(total_hits, effective_miss_count);
         let mut speed_value = self.compute_speed_value(total_hits, effective_miss_count);
-        let acc_value = self.compute_accuracy_value(total_hits);
+        let mut acc_value = self.compute_accuracy_value(total_hits);
 
         let mut acc_depression = 1.0;
 
@@ -276,46 +276,39 @@ impl<'m> OsuPP<'m> {
             }
         }
 
-        let attributes = self.attributes.as_ref().unwrap();
-
-        let mut base_aim_nerf = 0.28;
-        let mut base_speed_nerf = 0.2;
-
-        // Flow aim nerf
-        let speed_aim_factor = speed_value/aim_value;
-
-        if speed_aim_factor > 1.1 {
-            base_aim_nerf /= speed_aim_factor * 1.2;
-            base_speed_nerf /= speed_aim_factor * 1.2;
+        // Base nerf
+        if self.mods.dt() && self.mods.hr() {
+            speed_value *= 0.9;
+            aim_value *= 0.9;
+        } else {
+            acc_value *= 0.8;
+            speed_value *= 0.8;
+            aim_value *= 0.8;
         }
 
-        if attributes.ar >= 10.3 {
-            let ar_boost = attributes.ar/11.0;
-            base_aim_nerf += (0.18 * ar_boost) as f32;
-            let speed_nerf_factor = if speed_value>aim_value {
-                0.225
-            } else {
-                0.45
-            };
-            base_speed_nerf += (speed_nerf_factor * ar_boost) as f32;
-            // Precision buff
-            if attributes.cs > 5.6 {
-                base_aim_nerf *= ((attributes.cs.max(7.0)/4.85) * ar_boost) as f32;
-                base_speed_nerf *= ((attributes.cs.max(7.0)/5.2) * ar_boost) as f32;
-            }
+        let speed_to_aim: f32 = speed_value / aim_value;
+        let speedaim_to_acc = acc_value / (speed_value + aim_value);
+
+        // Nerf "acc" maps
+        
+        if speedaim_to_acc > 1.5 {
+            acc_value /= speedaim_to_acc * 0.75;
         }
 
-        aim_value *= base_aim_nerf;
-        speed_value *= base_speed_nerf;
+        // Nerf flow aim
+        if speed_to_aim > 1.25 {
+            speed_value /= speed_to_aim;
+            acc_value /= speed_to_aim;
+        }
 
-        let nodt_bonus = match !self.mods.change_speed() {
-            true => 1.0,
-            false => 1.0,
-        };
+        // Nerf aim maps with no complexity
+        if speed_to_aim < 0.5 {
+            aim_value *= speed_to_aim * 1.25;
+        }
 
-        let mut pp = (aim_value.powf(1.185 * nodt_bonus)
+        let mut pp = (aim_value.powf(1.185)
             + speed_value.powf(0.83 * acc_depression)
-            + acc_value.powf(1.14 * nodt_bonus))
+            + acc_value.powf(1.14))
         .powf(1.0 / 1.1)
             * multiplier;
 
@@ -365,7 +358,7 @@ impl<'m> OsuPP<'m> {
 
         OsuPerformanceAttributes {
             difficulty: self.attributes.unwrap(),
-            pp_acc: 0.0,
+            pp_acc: acc_value as f64,
             pp_aim: aim_value as f64,
             pp_flashlight: 0.0,
             pp_speed: speed_value as f64,
@@ -387,7 +380,7 @@ impl<'m> OsuPP<'m> {
         let mut aim_value = (5.0 * (raw_aim / 0.0675).max(1.0) - 4.0).powi(3) / 100_000.0;
 
         // Longer maps are worth more
-        let len_bonus = 0.65
+        let len_bonus = 0.3
             + 0.4 * (total_hits / 2000.0).min(1.0)
             + (total_hits > 2000.0) as u8 as f32 * 0.5 * (total_hits / 2000.0).log10();
         aim_value *= len_bonus;
@@ -437,6 +430,11 @@ impl<'m> OsuPP<'m> {
             aim_value *= base_buff;
         }
 
+        // Precision buff (reading)
+        if attributes.cs > 5.58 {
+            aim_value *= ((attributes.cs as f32 - 5.46).powf(1.8) + 1.0).powf(0.03);
+        }
+
         // Scale with accuracy
         aim_value *= 0.3 + self.acc.unwrap() / 2.0;
         aim_value *= 0.98 + attributes.od as f32 * attributes.od as f32 / 2500.0;
@@ -451,7 +449,7 @@ impl<'m> OsuPP<'m> {
             (5.0 * (attributes.speed_strain as f32 / 0.0675).max(1.0) - 4.0).powi(3) / 100_000.0;
 
         // Longer maps are worth more
-        let len_bonus = 0.8
+        let len_bonus = 0.4
             + 0.4 * (total_hits / 2000.0).min(1.0)
             + (total_hits > 2000.0) as u8 as f32 * 0.5 * (total_hits / 2000.0).log10();
         speed_value *= len_bonus;
@@ -499,7 +497,7 @@ impl<'m> OsuPP<'m> {
 
     fn compute_accuracy_value(&self, total_hits: f32) -> f32 {
         let attributes = self.attributes.as_ref().unwrap();
-        let n_circles = attributes.n_circles as f32;
+        let n_circles = (attributes.n_circles + attributes.n_sliders ) as f32;
         let n300 = self.n300.unwrap_or(0) as f32;
         let n100 = self.n100.unwrap_or(0) as f32;
         let n50 = self.n50.unwrap_or(0) as f32;
