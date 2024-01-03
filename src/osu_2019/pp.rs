@@ -278,8 +278,7 @@ impl<'m> OsuPP<'m> {
 
         // Base nerf
         if self.mods.dt() && self.mods.hr() {
-            speed_value *= 0.9;
-            aim_value *= 0.9;
+            
         } else {
             acc_value *= 0.8;
             speed_value *= 0.8;
@@ -292,7 +291,7 @@ impl<'m> OsuPP<'m> {
         // Nerf "acc" maps
         
         if speedaim_to_acc > 1.5 {
-            acc_value /= speedaim_to_acc * 0.75;
+            acc_value /= speedaim_to_acc * 0.67;
         }
 
         // Nerf flow aim
@@ -303,7 +302,7 @@ impl<'m> OsuPP<'m> {
 
         // Nerf aim maps with no complexity
         if speed_to_aim < 0.5 {
-            aim_value *= speed_to_aim * 1.25;
+            aim_value *= 0.9;
         }
 
         let mut pp = (aim_value.powf(1.185)
