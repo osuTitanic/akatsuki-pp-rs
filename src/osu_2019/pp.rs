@@ -278,11 +278,13 @@ impl<'m> OsuPP<'m> {
 
         // Base nerf
         if self.mods.dt() && self.mods.hr() {
-            
-        } else {
             acc_value *= 0.8;
             speed_value *= 0.8;
             aim_value *= 0.8;
+        } else {
+            acc_value *= 0.7;
+            speed_value *= 0.7;
+            aim_value *= 0.7;
         }
 
         let speed_to_aim: f32 = speed_value / aim_value;
